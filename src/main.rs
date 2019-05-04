@@ -18,7 +18,15 @@ fn responses(_req: Request<Body>, _client: &Client<HttpConnector>) -> ResponseFu
     match (_req.method(), _req.uri().path()) {
         (&Method::GET, "/") => {
             let body = Body::from(TEXT);
-            Box::new(future::ok(Response::new(body)))
+            let mut response = Response::builder();
+            Box::new(future::ok(
+                response
+                    .header("Access-Control-Allow-Origin", "http://localhost:3000")
+                    .header("Content-Type", "application/json")
+                    .status(StatusCode::OK)
+                    .body(body)
+                    .unwrap(),
+            ))
         }
         // POST EXAMPLE
         /*
