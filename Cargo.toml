@@ -7,3 +7,4 @@ edition = "2018"
 [dependencies]
 hyper = "0.12"
 futures = "0.1.26"
+sha2 = "0.8.0"
