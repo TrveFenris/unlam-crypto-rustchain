@@ -1,4 +1,6 @@
-#[derive(Clone, PartialEq, Eq, Debug, Hash)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct Transaction {
     pub sender: String,
     pub recipient: String,
