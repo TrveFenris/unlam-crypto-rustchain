@@ -1,15 +1,16 @@
-use sha2::Sha256;
 use super::transaction::Transaction;
+use serde::{Deserialize, Serialize};
+use std::time::SystemTime;
 
-#[derive(/*Copy, PartialEq, Eq,*/ Clone, Debug)]    // TODO implement PartialEq, Eq for Sha256
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct BlockHeader {
     pub index: u32,
-    pub prev_blockhash: Sha256,
-    pub timestamp: u32,
+    pub prev_blockhash: Vec<u8>,
+    pub timestamp: SystemTime,
 }
 
-#[derive(/*PartialEq, Eq,*/ Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Block {
     pub header: BlockHeader,
-    pub transactions: Vec<Transaction>
+    pub transactions: Vec<Transaction>,
 }
