@@ -53,4 +53,8 @@ impl Blockchain {
         self.current_transactions.push(_tx);
         return self.chain.len() as u32;
     }
+
+    pub fn get_blocks(&self) -> Vec<Block> {
+        return self.chain.clone();
+    }
 }

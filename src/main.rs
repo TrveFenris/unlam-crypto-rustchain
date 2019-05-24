@@ -29,11 +29,7 @@ fn responses<'a>(_req: Request<Body>, _client: &Client<HttpConnector>) -> types:
                 .body(Body::from(""))
                 .unwrap(),
         )),
-        (&Method::GET, "/blocks") => {
-            // TODO placeholder body, implement a getter for the complete chain
-            let body = Body::from("Getting all the blocks on the rustchain...");
-            api::get_blocks(body)
-        }
+        (&Method::GET, "/blocks") => api::get_blocks(),
         (&Method::GET, "/blocks/new") => {
             // TODO placeholder body, implement block creation
             let body = Body::from("Successfully created a new block on the rustchain.");
