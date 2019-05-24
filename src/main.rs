@@ -1,30 +1,34 @@
+#[macro_use]
+extern crate lazy_static;
 extern crate futures;
 extern crate hyper;
 
 mod api;
+mod blockdata;
 mod types;
 
 use futures::{future, Future};
 
 use hyper::client::HttpConnector;
 use hyper::service::service_fn;
-use hyper::{Body, Client, Method, Request, Server, StatusCode};
+use hyper::{header, Body, Client, Method, Request, Response, Server, StatusCode};
 
-static TEXT: &str = "Hello, World!";
 static NOTFOUND: &[u8] = b"Not Found";
 static ADDRESS: &str = "127.0.0.1:1337";
 
-fn responses(_req: Request<Body>, _client: &Client<HttpConnector>) -> types::ResponseFuture {
+fn responses<'a>(_req: Request<Body>, _client: &Client<HttpConnector>) -> types::ResponseFuture {
+    println!("Received request: {:#?}", _req);
     match (_req.method(), _req.uri().path()) {
-        (&Method::GET, "/") => {
-            // Hello world test method
-            api::create_standard_response(Body::from(TEXT), StatusCode::OK)
-        }
-        (&Method::POST, "/transactions/new") => {
-            // TODO placeholder body, implement transaction creation
-            let body = Body::from("Successfully added a new transaction to the rustchain.");
-            api::get_transactions_new(body)
-        }
+        (&Method::POST, "/transactions/new") => api::get_transactions_new(_req),
+        (&Method::OPTIONS, "/transactions/new") => Box::new(future::ok(
+            Response::builder()
+                .status(StatusCode::OK)
+                .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .header(header::ACCESS_CONTROL_ALLOW_METHODS, "POST")
+                .header(header::ACCESS_CONTROL_ALLOW_HEADERS, "content-type")
+                .body(Body::from(""))
+                .unwrap(),
+        )),
         (&Method::GET, "/blocks") => {
             // TODO placeholder body, implement a getter for the complete chain
             let body = Body::from("Getting all the blocks on the rustchain...");
@@ -35,10 +39,7 @@ fn responses(_req: Request<Body>, _client: &Client<HttpConnector>) -> types::Res
             let body = Body::from("Successfully created a new block on the rustchain.");
             api::get_blocks_new(body)
         }
-        _ => {
-            // Return 404 not found response.
-            api::create_standard_response(Body::from(NOTFOUND), StatusCode::NOT_FOUND)
-        }
+        _ => api::create_standard_response(Body::from(NOTFOUND), StatusCode::NOT_FOUND),
     }
 }
 
