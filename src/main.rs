@@ -16,10 +16,10 @@ use hyper::{header, Body, Client, Method, Request, Response, Server, StatusCode}
 static NOTFOUND: &[u8] = b"Not Found";
 static ADDRESS: &str = "127.0.0.1:1337";
 
-fn responses<'a>(_req: Request<Body>, _client: &Client<HttpConnector>) -> types::ResponseFuture {
-    println!("Received request: {:#?}", _req);
-    match (_req.method(), _req.uri().path()) {
-        (&Method::POST, "/transactions/new") => api::get_transactions_new(_req),
+fn responses<'a>(req: Request<Body>, _client: &Client<HttpConnector>) -> types::ResponseFuture {
+    println!("Received request: {:#?}", req);
+    match (req.method(), req.uri().path()) {
+        (&Method::POST, "/transactions/new") => api::get_transactions_new(req),
         (&Method::OPTIONS, "/transactions/new") => Box::new(future::ok(
             Response::builder()
                 .status(StatusCode::OK)
@@ -29,11 +29,7 @@ fn responses<'a>(_req: Request<Body>, _client: &Client<HttpConnector>) -> types:
                 .body(Body::from(""))
                 .unwrap(),
         )),
-        (&Method::GET, "/blocks") => {
-            // TODO placeholder body, implement a getter for the complete chain
-            let body = Body::from("Getting all the blocks on the rustchain...");
-            api::get_blocks(body)
-        }
+        (&Method::GET, "/blocks") => api::get_blocks(),
         (&Method::GET, "/blocks/new") => {
             // TODO placeholder body, implement block creation
             let body = Body::from("Successfully created a new block on the rustchain.");

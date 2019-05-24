@@ -25,8 +25,8 @@ pub fn create_standard_response(body: Body, status: StatusCode) -> ResponseFutur
     ))
 }
 
-pub fn get_transactions_new(_req: Request<Body>) -> ResponseFuture {
-    Box::new(_req.into_body().concat2().from_err().and_then(|body| {
+pub fn get_transactions_new(req: Request<Body>) -> ResponseFuture {
+    Box::new(req.into_body().concat2().from_err().and_then(|body| {
         // TODO: Replace all unwraps with proper error handling
         let str = String::from_utf8(body.to_vec())?;
         let data: SerdeResult<Transaction> = serde_json::from_str(&str);
@@ -41,7 +41,7 @@ pub fn get_transactions_new(_req: Request<Body>) -> ResponseFuture {
                     .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
                     .body(Body::from("Transaction created succesfully."))?;
             }
-            Err(e) => {
+            Err(_e) => {
                 println!("BAD TRANSACTION!");
                 response = Response::builder()
                     .status(StatusCode::BAD_REQUEST)
@@ -53,8 +53,27 @@ pub fn get_transactions_new(_req: Request<Body>) -> ResponseFuture {
     }))
 }
 
-pub fn get_blocks(body: Body) -> ResponseFuture {
-    create_standard_response(body, StatusCode::OK)
+pub fn get_blocks() -> ResponseFuture {
+    let blocks = RUSTCHAIN.lock().unwrap().get_blocks();
+    let json = serde_json::to_string(&blocks);
+    let response;
+    match json {
+        Ok(json_string) => {
+            println!("Requested blocks");
+            response = Response::builder()
+                .status(StatusCode::OK)
+                .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .body(Body::from(json_string));
+        }
+        Err(_e) => {
+            println!("BAD BLOCKS REQUEST!");
+            response = Response::builder()
+                .status(StatusCode::BAD_REQUEST)
+                .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .body(Body::from("Error while getting the Rustchain blocks."));
+        }
+    }
+    Box::new(future::ok(response.unwrap()))
 }
 
 pub fn get_blocks_new(body: Body) -> ResponseFuture {
