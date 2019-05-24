@@ -49,13 +49,8 @@ impl Blockchain {
     }
 
     // return: <int> The index of the Block that will hold this transaction
-    pub fn add_transaction(&mut self, sender: String, recipient: String, amount: i32) -> u32 {
-        let tx = Transaction {
-            sender: sender,
-            recipient: recipient,
-            amount: amount,
-        };
-        self.current_transactions.push(tx);
+    pub fn add_transaction(&mut self, _tx: Transaction) -> u32 {
+        self.current_transactions.push(_tx);
         return self.chain.len() as u32;
     }
 }
