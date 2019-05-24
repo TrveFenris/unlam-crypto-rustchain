@@ -25,8 +25,8 @@ pub fn create_standard_response(body: Body, status: StatusCode) -> ResponseFutur
     ))
 }
 
-pub fn get_transactions_new(_req: Request<Body>) -> ResponseFuture {
-    Box::new(_req.into_body().concat2().from_err().and_then(|body| {
+pub fn get_transactions_new(req: Request<Body>) -> ResponseFuture {
+    Box::new(req.into_body().concat2().from_err().and_then(|body| {
         // TODO: Replace all unwraps with proper error handling
         let str = String::from_utf8(body.to_vec())?;
         let data: SerdeResult<Transaction> = serde_json::from_str(&str);
