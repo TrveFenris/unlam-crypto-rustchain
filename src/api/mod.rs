@@ -35,7 +35,10 @@ pub fn get_transactions_new(req: Request<Body>) -> ResponseFuture {
             Ok(tx) => {
                 println!("TRANSACTION RECEIVED: {:#?}", tx);
                 RUSTCHAIN.lock().unwrap().add_transaction(tx);
-                println!("RUSTCHAIN IS NOW: {:#?}", *RUSTCHAIN);
+                println!(
+                    "AFTER ADDING A TRANSACTION, THE RUSTCHAIN IS NOW: {:#?}",
+                    *RUSTCHAIN
+                );
                 response = Response::builder()
                     .status(StatusCode::OK)
                     .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
@@ -76,7 +79,7 @@ pub fn get_blocks() -> ResponseFuture {
     Box::new(future::ok(response.unwrap()))
 }
 
-pub fn get_blocks_new(body: Body) -> ResponseFuture {
+pub fn get_blocks_new() -> ResponseFuture {
     let last_block = RUSTCHAIN.lock().unwrap().get_last_block();
     let last_proof = last_block.proof;
     let proof = RUSTCHAIN.lock().unwrap().proof_of_work(last_proof);
