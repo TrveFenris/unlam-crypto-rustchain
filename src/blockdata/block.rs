@@ -5,7 +5,7 @@ use std::time::SystemTime;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct BlockHeader {
     pub index: u32,
-    pub prev_blockhash: Vec<u8>,
+    pub prev_blockhash: String,
     pub timestamp: SystemTime,
 }
 

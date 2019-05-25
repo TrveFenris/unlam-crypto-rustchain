@@ -4,6 +4,7 @@ use super::transaction::Transaction;
 use serde_json;
 use sha2::{Digest, Sha256};
 use std::time::SystemTime;
+use data_encoding::HEXLOWER;
 
 #[derive(Debug)]
 pub struct Blockchain {
@@ -20,7 +21,7 @@ impl Blockchain {
         blockchain.chain.push(Block {
             header: BlockHeader {
                 index: 0,
-                prev_blockhash: Vec::new(),
+                prev_blockhash: String::new(),
                 timestamp: SystemTime::now(),
             },
             transactions: Vec::new(),
@@ -32,11 +33,11 @@ impl Blockchain {
     //  :param proof: <int> The proof given by the Proof of Work algorithm
     //  :param previous_hash: (Optional) <str> Hash of previous Block
     pub fn create_block(&mut self) -> Block {
-        let json_block = serde_json::to_string(&self.chain[self.chain.len() - 1]).unwrap();
+        let json_block = serde_json::to_vec(&self.chain[self.chain.len() - 1]).unwrap();
         let block = Block {
             header: BlockHeader {
                 index: self.chain.len() as u32,
-                prev_blockhash: Sha256::digest(json_block.as_bytes()).as_slice().to_vec(), // TODO store hash as a string, the hasher.result() returns a Generic byte array
+                prev_blockhash: HEXLOWER.encode(Sha256::digest(json_block.as_slice()).as_slice()),
                 timestamp: SystemTime::now(),
             },
             transactions: self.current_transactions.clone(),
@@ -44,6 +45,7 @@ impl Blockchain {
         };
         // Reset the current list of transactions
         self.current_transactions = Vec::new();
+        println!("CREATED BLOCK: {:#?}", block);
         self.chain.push(block);
         return self.chain.last().unwrap().clone();
     }
