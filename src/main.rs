@@ -30,11 +30,7 @@ fn responses<'a>(req: Request<Body>, _client: &Client<HttpConnector>) -> types::
                 .unwrap(),
         )),
         (&Method::GET, "/blocks") => api::get_blocks(),
-        (&Method::GET, "/blocks/new") => {
-            // TODO placeholder body, implement block creation
-            let body = Body::from("Successfully created a new block on the rustchain.");
-            api::get_blocks_new(body)
-        }
+        (&Method::GET, "/blocks/new") => api::get_blocks_new(),
         _ => api::create_standard_response(Body::from(NOTFOUND), StatusCode::NOT_FOUND),
     }
 }

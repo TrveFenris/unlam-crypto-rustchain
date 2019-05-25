@@ -1,10 +1,10 @@
 use super::block::Block;
 use super::block::BlockHeader;
 use super::transaction::Transaction;
+use data_encoding::HEXLOWER;
 use serde_json;
 use sha2::{Digest, Sha256};
 use std::time::SystemTime;
-use data_encoding::HEXLOWER;
 
 #[derive(Debug)]
 pub struct Blockchain {
@@ -25,14 +25,21 @@ impl Blockchain {
                 timestamp: SystemTime::now(),
             },
             transactions: Vec::new(),
+            proof: 100,
         });
         return blockchain;
+    }
+
+    pub fn validate_proof(last_proof: i32, proof: i32) -> bool {
+        let guess = format!("{}{}", last_proof, proof);
+        let guess_hash = HEXLOWER.encode(Sha256::digest(guess.as_bytes()).as_slice());
+        return guess_hash.starts_with("0000");
     }
 
     // TODO
     //  :param proof: <int> The proof given by the Proof of Work algorithm
     //  :param previous_hash: (Optional) <str> Hash of previous Block
-    pub fn create_block(&mut self) -> Block {
+    pub fn create_block(&mut self, proof: i32) -> Block {
         let json_block = serde_json::to_vec(&self.chain[self.chain.len() - 1]).unwrap();
         let block = Block {
             header: BlockHeader {
@@ -41,7 +48,7 @@ impl Blockchain {
                 timestamp: SystemTime::now(),
             },
             transactions: self.current_transactions.clone(),
-            //proof: proof, // TODO PoW
+            proof: proof,
         };
         // Reset the current list of transactions
         self.current_transactions = Vec::new();
@@ -58,5 +65,17 @@ impl Blockchain {
 
     pub fn get_blocks(&self) -> Vec<Block> {
         return self.chain.clone();
+    }
+
+    pub fn get_last_block(&self) -> Block {
+        return self.chain.last().unwrap().clone();
+    }
+
+    pub fn proof_of_work(&self, last_proof: i32) -> i32 {
+        let mut proof = 0;
+        while !Blockchain::validate_proof(last_proof, proof) {
+            proof += 1;
+        }
+        return proof;
     }
 }
