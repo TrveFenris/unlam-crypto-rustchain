@@ -77,5 +77,40 @@ pub fn get_blocks() -> ResponseFuture {
 }
 
 pub fn get_blocks_new(body: Body) -> ResponseFuture {
-    create_standard_response(body, StatusCode::OK)
+    let last_block = RUSTCHAIN.lock().unwrap().get_last_block();
+    let last_proof = last_block.proof;
+    let proof = RUSTCHAIN.lock().unwrap().proof_of_work(last_proof);
+    // We must receive a reward for finding the proof.
+    // The sender is "0" to signify that this node has mined a new coin.
+    RUSTCHAIN.lock().unwrap().add_transaction(Transaction {
+        sender: String::from("0"),
+        recipient: String::from("TBD"), // TODO get the recipient address?
+        amount: 1,
+    });
+    let new_block = RUSTCHAIN.lock().unwrap().create_block(proof);
+    println!(
+        "AFTER CREATING A NEW BLOCK, THE RUSTCHAIN IS NOW: {:#?}",
+        *RUSTCHAIN
+    );
+    let json = serde_json::to_string(&new_block);
+    let response;
+    match json {
+        Ok(json_string) => {
+            println!("Created a new block");
+            response = Response::builder()
+                .status(StatusCode::OK)
+                .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .body(Body::from(json_string));
+        }
+        Err(_e) => {
+            println!("ERROR CREATING BLOCK!");
+            response = Response::builder()
+                .status(StatusCode::BAD_REQUEST)
+                .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .body(Body::from(
+                    "Error while creating a new block on the Rustchain.",
+                ));
+        }
+    }
+    Box::new(future::ok(response.unwrap()))
 }

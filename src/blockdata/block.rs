@@ -13,4 +13,5 @@ pub struct BlockHeader {
 pub struct Block {
     pub header: BlockHeader,
     pub transactions: Vec<Transaction>,
+    pub proof: i32,
 }
