@@ -42,6 +42,7 @@ pub fn get_transactions_new(req: Request<Body>) -> ResponseFuture {
                 response = Response::builder()
                     .status(StatusCode::OK)
                     .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                    .header("Content-Type", "application/json")
                     .body(Body::from("Transaction created succesfully."))?;
             }
             Err(_e) => {
@@ -49,6 +50,7 @@ pub fn get_transactions_new(req: Request<Body>) -> ResponseFuture {
                 response = Response::builder()
                     .status(StatusCode::BAD_REQUEST)
                     .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                    .header("Content-Type", "application/json")
                     .body(Body::from("Error while creating the Transaction."))?;
             }
         }
@@ -66,6 +68,7 @@ pub fn get_blocks() -> ResponseFuture {
             response = Response::builder()
                 .status(StatusCode::OK)
                 .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .header("Content-Type", "application/json")
                 .body(Body::from(json_string));
         }
         Err(_e) => {
@@ -73,6 +76,7 @@ pub fn get_blocks() -> ResponseFuture {
             response = Response::builder()
                 .status(StatusCode::BAD_REQUEST)
                 .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .header("Content-Type", "application/json")
                 .body(Body::from("Error while getting the Rustchain blocks."));
         }
     }
@@ -103,6 +107,7 @@ pub fn get_blocks_new() -> ResponseFuture {
             response = Response::builder()
                 .status(StatusCode::OK)
                 .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .header("Content-Type", "application/json")
                 .body(Body::from(json_string));
         }
         Err(_e) => {
@@ -110,6 +115,7 @@ pub fn get_blocks_new() -> ResponseFuture {
             response = Response::builder()
                 .status(StatusCode::BAD_REQUEST)
                 .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .header("Content-Type", "application/json")
                 .body(Body::from(
                     "Error while creating a new block on the Rustchain.",
                 ));
