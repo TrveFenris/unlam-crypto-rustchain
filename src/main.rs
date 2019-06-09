@@ -8,13 +8,15 @@ mod blockdata;
 mod types;
 
 use futures::{future, Future};
+use std::env;
 
 use hyper::client::HttpConnector;
 use hyper::service::service_fn;
 use hyper::{header, Body, Client, Method, Request, Response, Server, StatusCode};
 
 static NOTFOUND: &[u8] = b"Not Found";
-static ADDRESS: &str = "127.0.0.1:1337";
+static ADDRESS: &str = "127.0.0.1:";
+static DEFAULT_PORT: &str = "1337";
 
 fn responses<'a>(req: Request<Body>, _client: &Client<HttpConnector>) -> types::ResponseFuture {
     println!("Received request: {:#?}", req);
@@ -36,7 +38,11 @@ fn responses<'a>(req: Request<Body>, _client: &Client<HttpConnector>) -> types::
 }
 
 fn main() {
-    let addr = ADDRESS.parse().unwrap();
+    let port = match env::args().nth(1) {
+        Some(port) => port,
+        None => DEFAULT_PORT.to_string(),
+    };
+    let addr = format!("{}{}", ADDRESS, port.to_string()).parse().unwrap();
 
     hyper::rt::run(future::lazy(move || {
         // Share a `Client` with all `Service`s
