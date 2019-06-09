@@ -4,12 +4,14 @@ use super::transaction::Transaction;
 use data_encoding::HEXLOWER;
 use serde_json;
 use sha2::{Digest, Sha256};
+use std::collections::HashSet;
 use std::time::SystemTime;
 
 #[derive(Debug)]
 pub struct Blockchain {
     chain: Vec<Block>,
     current_transactions: Vec<Transaction>,
+    nodes: HashSet<String>,
 }
 
 impl Blockchain {
@@ -17,6 +19,7 @@ impl Blockchain {
         let mut blockchain = Blockchain {
             chain: Vec::new(),
             current_transactions: Vec::new(),
+            nodes: HashSet::new(),
         };
         blockchain.chain.push(Block {
             header: BlockHeader {
@@ -77,5 +80,9 @@ impl Blockchain {
             proof += 1;
         }
         return proof;
+    }
+
+    pub fn register_node(&mut self, address: &str) {
+        self.nodes.insert(address.to_owned());
     }
 }
